@@ -24,19 +24,27 @@ class CommitWriter(object):
     
 
     def start(self):
-        if datetime.today().weekday() == 6:
+        if datetime.today().weekday() == 0 and not self.begin:
             self.begin = True
             with open((self.msg + ".txt"), 'w') as w:
-                w.write(self.msg)
+                w.close()
+            print("Our first commit is today!")
+        if not self.begin:
+            print("You have", 6 - datetime.today().weekday(), "days until the first commit")
+
         if self.begin:
             r = open((self.msg + ".txt"), 'r')
             commit_ready = True
-            line_count = -1
-            for line in r.readline():
+            line_count = 0
+            for line in r.readlines():
                 line_count += 1
+                print(line)
                 if datetime.strptime(line, '%Y-%M-%d') ==\
                    datetime.now().strftime('%Y-%M-%d'):
                     commit_ready = False
+                    
+            r.close()
+            print("Linecount:", line_count)
             if commit_ready:
                 cur_pix_num = line_count
                 for i in self.msg:
@@ -45,12 +53,22 @@ class CommitWriter(object):
                         break
                     else:
                         cur_pix_num -= 7 * length[i]
+                print("Working on the letter:", letter)
                 y = cur_pix_num // 7
                 x = cur_pix_num % 7
-                if conversion[letter] == 1:
+                print("At coord:", x,y)
+                if conversion[letter][y][x] == 1:
+                    print("Committing", int(7 - (line_count % 7) * 2) + 1, "times")
                     for i in range(0, int(7 - (line_count % 7) * 2) + 1):
                         commit()
                         time.sleep(1)
+                else:
+                    print("No commits today")
+                with open((self.msg + ".txt"), 'a') as a:
+                    a.write(str(datetime.now().strftime('%Y-%M-%d')))
+                a.close()
+                print("Complete for the day")
+            
                 
                     
                 
@@ -63,5 +81,10 @@ class CommitWriter(object):
 #print(string)
 #print(datetime.strptime(string, '%Y-%M-%d').strftime('%Y'))
 
-
-
+x = CommitWriter()
+x.write("ABC")
+x.start()
+time.sleep(1)
+x.start()
+time.sleep(1)
+x.start()
