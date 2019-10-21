@@ -1,6 +1,7 @@
 from datetime import datetime
 from self_commit import commit
 from char_to_pixel import *
+import hashlib
 import time
 
 date_chars = ['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -66,6 +67,10 @@ class CommitWriter(object):
                 if conversion[letter][y][x] == 0:
                     print("Committing", int(7 - (line_count % 7) * 2) + 1, "times")
                     for i in range(0, int(7 - (line_count % 7) * 2) + 1):
+                        nm = hash_object = hashlib.md5(str(datetime.now()).encode())
+                        nm = nm.hexdigest()
+                        with open(("force_commit/" + nm + ".txt"), 'w') as w:
+                            w.close()
                         commit()
                         print("Commit")
                         time.sleep(60)
