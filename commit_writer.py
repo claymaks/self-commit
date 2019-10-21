@@ -3,6 +3,8 @@ from self_commit import commit
 from char_to_pixel import *
 import time
 
+date_chars = ['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
 class CommitWriter(object):
     """Write a 50x7 pixel message on GitHub over the course of a year."""
 
@@ -38,9 +40,8 @@ class CommitWriter(object):
             line_count = 0
             for line in r.readlines():
                 line_count += 1
-                print(line)
-                if datetime.strptime(line, '%Y-%M-%d') ==\
-                   datetime.now().strftime('%Y-%M-%d'):
+                if datetime.strptime(line[:-1], '%Y-%m-%d').strftime('%Y-%m-%d') ==\
+                   datetime.now().strftime('%Y-%m-%d'):
                     commit_ready = False
                     
             r.close()
@@ -54,18 +55,25 @@ class CommitWriter(object):
                     else:
                         cur_pix_num -= 7 * length[i]
                 print("Working on the letter:", letter)
-                y = cur_pix_num // 7
-                x = cur_pix_num % 7
+                y = (datetime.today().weekday() - 6) % 7
+                x = 0
+                while cur_pix_num >= 0:
+                    cur_pix_num -= 7
+                    x += 1
+                cur_pix_num += 7
+                x -= 1
                 print("At coord:", x,y)
-                if conversion[letter][y][x] == 1:
+                if conversion[letter][y][x] == 0:
                     print("Committing", int(7 - (line_count % 7) * 2) + 1, "times")
                     for i in range(0, int(7 - (line_count % 7) * 2) + 1):
                         commit()
-                        time.sleep(1)
+                        print("Commit")
+                        time.sleep(60)
                 else:
                     print("No commits today")
                 with open((self.msg + ".txt"), 'a') as a:
-                    a.write(str(datetime.now().strftime('%Y-%M-%d')))
+                    a.write(str(datetime.now().strftime('%Y-%m-%d')))
+                    a.write("\n")
                 a.close()
                 print("Complete for the day")
             
@@ -83,6 +91,7 @@ class CommitWriter(object):
 
 x = CommitWriter()
 x.write("ABC")
+#x.begin = True
 x.start()
 time.sleep(1)
 x.start()
